@@ -58,7 +58,7 @@ class ChapterVideoListScreen extends StatelessWidget {
                 child: Obx(() {
                   return Column(
                     children: [
-                      /// 🔴 No Internet Banner
+                      /// 🔴 No Internet
                       if (!ctrl.isConnected.value)
                         Container(
                           width: double.infinity,
