@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mero_vidya_library/models/subject_model.dart';
 import '../models/class_model.dart';
 import '../models/chapter_model.dart';
 import '../models/video_model.dart';
 
 class ApiServices {
-  static String get baseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000/merolibrary';
+  static String get baseUrl => 'http://192.168.1.83:8000/merolibrary';
 
   // =============================
   //  1. Fetch all classes
@@ -118,47 +116,37 @@ class ApiServices {
   }
 
   // =============================
-  //  DUMMY SIGNUP (for UI design)
+  //  7. Login & Signup
   // =============================
-  static Future<Map<String, dynamic>> registerUser(
-    String username,
-    String email,
+  static Future<Map<String, dynamic>> signup(
+    String phone,
     String password,
+    String confirmPassword,
   ) async {
-    // Simulate network delay
-    await Future.delayed(Duration(seconds: 2));
-
-    // Dummy response
-    return {
-      "success": true,
-      "data": {
-        "id": 1,
-        "username": username,
-        "email": email,
-        "token": "dummy_signup_token_123",
+    final url = Uri.parse("$baseUrl/signup/");
+    final response = await http.post(
+      url,
+      body: {
+        "phone_number": phone,
+        "password": password,
+        "confirm_password": confirmPassword,
       },
-    };
+    );
+    print("++++++++++++++++++++++=====${response.body}");
+    return json.decode(response.body);
   }
 
-  // =============================
-  //  DUMMY LOGIN (for UI design)
-  // =============================
-  static Future<Map<String, dynamic>> loginUser(
-    String email,
+  static Future<Map<String, dynamic>> login(
+    String phone,
     String password,
   ) async {
-    // Simulate network delay
-    await Future.delayed(Duration(seconds: 2));
+    final url = Uri.parse("$baseUrl/login/");
+    final response = await http.post(
+      url,
+      body: {"phone_number": phone, "password": password},
+    );
 
-    // Dummy response
-    return {
-      "success": true,
-      "data": {
-        "id": 1,
-        "username": "DummyUser",
-        "email": email,
-        "token": "dummy_login_token_456",
-      },
-    };
+    print(response.body);
+    return json.decode(response.body);
   }
 }

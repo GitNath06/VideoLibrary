@@ -1,80 +1,83 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../services/api_service.dart'; // ✅ Import ApiServices which contains dummy API methods
+import 'package:mero_vidya_library/widget/reusable_widget.dart';
+import '../services/api_service.dart';
+import '../screens/class_list_screen.dart';
 
 class UserController extends GetxController {
-  // Observable variables for UI state
-  var isLoading = false.obs; // Indicates whether an API call is in progress
-  var errorMessage = ''.obs; // Stores error messages for UI display
+  var isLoading = false.obs;
+  var errorMessage = "".obs;
+  var loggedInUser = "".obs;
 
-  /// ================================
-  /// User Registration
-  /// ================================
-  /// Currently uses dummy API from ApiServices for UI testing.
-  /// Once backend is ready, replace this call with the real API endpoint.
-  Future<void> registerUser(
-    String username,
-    String email,
-    String password,
-  ) async {
+  // Login method
+  Future<void> loginUser(String phone, String password) async {
+    if (phone.isEmpty || password.isEmpty) {
+      errorMessage.value = "Please enter all fields";
+      return;
+    }
+
     try {
-      isLoading.value = true; // Start loading
-      errorMessage.value = ''; // Clear previous errors
+      isLoading.value = true;
+      errorMessage.value = "";
 
-      // -----------------------------
-      // Call dummy API method
-      // -----------------------------
-      final result = await ApiServices.registerUser(username, email, password);
+      final response = await ApiServices.login(phone, password);
 
-      if (result['success'] == true) {
-        // ✅ Registration succeeded
-        Get.snackbar("Success", "User registered successfully!");
-        print("🔑 Dummy Token: ${result['data']['token']}");
-        // Later: save token or user data as needed
+      if (response.containsKey("message") &&
+          response["message"] == "Login successful") {
+        loggedInUser.value = response["user"];
+        // Show success snackbar
+        CustomWidget.showSnackbar(
+          title: "Success",
+          message: "Logged in as ${loggedInUser.value}",
+          icon: Icons.check_circle,
+        );
+        Get.offAll(() => const ClassListScreen());
+      } else if (response.containsKey("error")) {
+        errorMessage.value = response["error"];
       } else {
-        // ❌ Registration failed
-        errorMessage.value = result['message'] ?? 'Registration failed';
-        Get.snackbar("Error", errorMessage.value);
+        errorMessage.value = "Unexpected error occurred";
       }
     } catch (e) {
-      // ❌ Exception occurred
-      errorMessage.value = e.toString();
-      Get.snackbar("Exception", errorMessage.value);
+      errorMessage.value = "Failed to connect to server";
     } finally {
-      isLoading.value = false; // Stop loading
+      isLoading.value = false;
     }
   }
 
-  /// ================================
-  /// User Login
-  /// ================================
-  /// Currently uses dummy API from ApiServices for UI testing.
-  /// Once backend is ready, replace this call with the real API endpoint.
-  Future<void> loginUser(String email, String password) async {
+  // Signup method
+  Future<void> signupUser(
+    String phone,
+    String password,
+    String confirmPassword,
+  ) async {
+    if (phone.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      errorMessage.value = "Please enter all fields";
+      return;
+    }
+
     try {
-      isLoading.value = true; // Start loading
-      errorMessage.value = ''; // Clear previous errors
+      isLoading.value = true;
+      errorMessage.value = "";
 
-      // -----------------------------
-      // Call dummy API method
-      // -----------------------------
-      final result = await ApiServices.loginUser(email, password);
+      final response = await ApiServices.signup(
+        phone,
+        password,
+        confirmPassword,
+      );
 
-      if (result['success'] == true) {
-        // ✅ Login succeeded
-        Get.snackbar("Success", "Login successful!");
-        print("🔑 Dummy Token: ${result['data']['token']}");
-        // Later: save token or user data in GetStorage or secure storage
+      if (response.containsKey("message") &&
+          response["message"] == "User registered successfully") {
+        Get.snackbar("Success", "Signup successful, please login");
+      } else if (response.containsKey("password") ||
+          response.containsKey("confirm_password")) {
+        errorMessage.value = "Passwords do not match";
       } else {
-        // ❌ Login failed
-        errorMessage.value = result['message'] ?? 'Login failed';
-        Get.snackbar("Error", errorMessage.value);
+        errorMessage.value = response.toString();
       }
     } catch (e) {
-      // ❌ Exception occurred
-      errorMessage.value = e.toString();
-      Get.snackbar("Exception", errorMessage.value);
+      errorMessage.value = "Failed to connect to server";
     } finally {
-      isLoading.value = false; // Stop loading
+      isLoading.value = false;
     }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mero_vidya_library/extension/extension.dart';
+import 'package:mero_vidya_library/screens/user_screen.dart';
+import 'package:mero_vidya_library/widget/reusable_widget.dart';
 import '../controllers/class_controller.dart';
 import '../models/class_model.dart';
 import 'subject_list_screen.dart';
@@ -17,6 +19,16 @@ class ClassListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: "Logout",
+            onPressed: () {
+              // Navigate back to login screen and remove all previous routes
+              Get.offAll(() => LoginScreen());
+            },
+          ),
+        ],
         backgroundColor: const Color.fromARGB(255, 0, 0, 247),
         elevation: 10,
         centerTitle: true,
@@ -49,7 +61,7 @@ class ClassListScreen extends StatelessWidget {
                   return Column(
                     children: [
                       if (!classController.isConnected.value)
-                        _noInternetBanner(),
+                        CustomWidget.noInternetBanner(),
                       _buildMainContent(context, classController),
                     ],
                   );
@@ -58,19 +70,6 @@ class ClassListScreen extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _noInternetBanner() {
-    return Container(
-      width: double.infinity,
-      color: Colors.red,
-      padding: const EdgeInsets.all(12),
-      child: const Text(
-        "No Internet Connection",
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
       ),
     );
   }
@@ -158,7 +157,7 @@ class ClassListScreen extends StatelessWidget {
                       'Offline',
                       'Please connect to the internet to view subjects.',
                       snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 1),
                       backgroundColor: Colors.orange,
                       colorText: Colors.white,
                     );
@@ -203,35 +202,26 @@ class ClassListScreen extends StatelessWidget {
     );
   }
 
+  //refresher.....
   void _showRefreshSnackbar(ClassController classController) {
+    IconData icon;
+    String title;
+    String message = '';
     if (classController.isConnected.value &&
         classController.classList.isNotEmpty) {
-      Get.snackbar(
-        'Refreshed',
-        'Class list updated successfully!',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-        backgroundColor: const Color.fromARGB(255, 47, 218, 53),
-        colorText: Colors.white,
-      );
+      icon = Icons.check_circle_outline;
+      title = 'Refreshed';
+      message = 'Class list updated successfully.';
     } else if (!classController.isConnected.value) {
-      Get.snackbar(
-        'No Internet',
-        'Cannot refresh without internet connection.',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      icon = Icons.wifi_off;
+      title = 'No Internet';
+      message = 'Check your connection.';
     } else {
-      Get.snackbar(
-        'No Data',
-        'No classes found after refresh. Please try again later.',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
+      icon = Icons.info_outline;
+      title = 'No Data';
+      message = 'No classes found.';
     }
+
+    CustomWidget.showSnackbar(title: title, message: message, icon: icon);
   }
 }

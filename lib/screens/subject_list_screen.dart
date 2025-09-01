@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mero_vidya_library/extension/extension.dart';
 import 'package:mero_vidya_library/screens/chapter_list_screen.dart';
+import 'package:mero_vidya_library/widget/reusable_widget.dart';
 import '../controllers/subject_controller.dart';
 // import '../models/subject_model.dart';
 
@@ -54,7 +55,7 @@ class SubjectListScreen extends StatelessWidget {
                   return Column(
                     children: [
                       if (!subjectController.isConnected.value)
-                        _noInternetBanner(),
+                        CustomWidget.noInternetBanner(),
                       _buildMainContent(context),
                     ],
                   );
@@ -62,38 +63,6 @@ class SubjectListScreen extends StatelessWidget {
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-
-  /// 🔺 Red banner for no internet
-  Widget _noInternetBanner() {
-    return Container(
-      width: double.infinity,
-      color: Colors.red,
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: const Text(
-        "No Internet Connection",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  /// 📦 Message widget for empty or offline-with-no-data states
-  Widget _messageWidget(BuildContext context, String message) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.7,
-      child: Center(
-        child: Text(
-          message,
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -110,7 +79,7 @@ class SubjectListScreen extends StatelessWidget {
 
     if (subjectController.subjectList.isEmpty &&
         subjectController.fetchAttempted.value) {
-      return _messageWidget(
+      return CustomWidget.messageWidget(
         context,
         'No subjects available. Pull down to refresh.',
       );
@@ -118,7 +87,7 @@ class SubjectListScreen extends StatelessWidget {
 
     if (!subjectController.isConnected.value &&
         subjectController.subjectList.isEmpty) {
-      return _messageWidget(
+      return CustomWidget.messageWidget(
         context,
         'Connect to the internet to load subjects. Pull down to refresh.',
       );
@@ -194,34 +163,25 @@ class SubjectListScreen extends StatelessWidget {
   }
 
   void _showRefreshSnackbar() {
+    IconData icon;
+    String title;
+    String message = '';
+
     if (subjectController.isConnected.value &&
         subjectController.subjectList.isNotEmpty) {
-      Get.snackbar(
-        'Refreshed',
-        'Subjects updated successfully!',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-        backgroundColor: const Color.fromARGB(255, 47, 218, 53),
-        colorText: Colors.white,
-      );
+      icon = Icons.check_circle_outline;
+      title = 'Refreshed';
+      message = 'Subjects refreshed successfully.';
     } else if (!subjectController.isConnected.value) {
-      Get.snackbar(
-        'No Internet',
-        'Cannot refresh without internet connection.',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      icon = Icons.wifi_off;
+      title = 'No Internet';
+      message = 'Check your connection.';
     } else {
-      Get.snackbar(
-        'No Data',
-        'No subjects found after refresh.',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
+      icon = Icons.info_outline;
+      title = 'No Data';
+      message = 'No subjects found.';
     }
+
+    CustomWidget.showSnackbar(title: title, message: message, icon: icon);
   }
 }

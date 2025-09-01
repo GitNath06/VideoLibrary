@@ -1,13 +1,13 @@
 // import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mero_vidya_library/screens/user_screen.dart';
-// import 'package:url_strategy/url_strategy.dart'; // <-- For clean URLs on web
+import 'screens/user_screen.dart';
 
-import 'screens/class_list_screen.dart';
+void main() async {
+  await GetStorage.init(); // 🔹 initialize storage
 
-void main() {
   runApp(const MyApp());
 }
 
@@ -23,8 +23,8 @@ class MyApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(elevation: 1, centerTitle: true),
       ),
       debugShowCheckedModeBanner: false,
-      // home: const CustomLoginScreen(),
-      home: const ClassListScreen(),
+      home: const LoginScreen(),
+      // home: const ClassListScreen(),
     );
   }
 }

@@ -1,0 +1,3 @@
+W/WindowOnBackDispatcher(20450): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher(20450): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+
